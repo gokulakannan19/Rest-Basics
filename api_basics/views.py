@@ -1,17 +1,68 @@
+from django.db.models import manager
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import serializers
 
 from rest_framework.parsers import JSONParser
 from rest_framework.serializers import Serializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 
 from .models import Article
 from .serializers import ArticleSerializer
 
 
+# Class Based Api view
+
+class ArticleApiView(APIView):
+
+    def get(self, request):
+        articles = Article.objects.all()
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ArticleSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ArticleDetails(APIView):
+
+    def get_object(self, request, pk):
+        try:
+            return Article.objects.get(id=pk)
+        except Article.DoesNotExist:
+            return HttpResponse("Hello")
+            # return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, pk):
+        article = Article.objects.get(id=pk)
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        article = Article.objects.get(id=pk)
+        serializer = ArticleSerializer(article, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        article = Article.objects.get(id=pk)
+        article.delete()
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+# Function Based api views
 @api_view(['GET', 'POST'])
 def article_list(request):
     if request.method == "GET":
@@ -39,7 +90,7 @@ def article_detail(request, pk):
         article = Article.objects.get(id=pk)
     except Article.DoesNotExist:
         # return HttpResponse(status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
         serializer = ArticleSerializer(article)
