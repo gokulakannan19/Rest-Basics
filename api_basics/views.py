@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import serializers
 from rest_framework import permissions
 from rest_framework import authentication
+from rest_framework import views
 from rest_framework.parsers import JSONParser
 from rest_framework.serializers import Serializer
 
@@ -34,35 +35,41 @@ from .models import Article
 from .serializers import ArticleSerializer
 
 
-# Viewsets and Routers
-class ArticleViewSet(viewsets.ViewSet):
-    def list(self, request):
-        articles = Article.objects.all()
-        serializer = ArticleSerializer(articles, many=True)
-        return Response(serializer.data)
+# # Viewsets and Routers
+# class ArticleViewSet(viewsets.ViewSet):
+#     def list(self, request):
+#         articles = Article.objects.all()
+#         serializer = ArticleSerializer(articles, many=True)
+#         return Response(serializer.data)
 
-    def create(self, request):
-        serializer = ArticleSerializer(data=request.data)
+#     def create(self, request):
+#         serializer = ArticleSerializer(data=request.data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-    def retrieve(self, request, pk=None):
-        queryset = Article.objects.all()
-        article = get_object_or_404(queryset, pk=pk)
-        serializer = ArticleSerializer(article)
-        return Response(serializer.data)
+#     def retrieve(self, request, pk=None):
+#         queryset = Article.objects.all()
+#         article = get_object_or_404(queryset, pk=pk)
+#         serializer = ArticleSerializer(article)
+#         return Response(serializer.data)
 
-    def update(self, request, pk=None):
-        article = Article.objects.get(pk=pk)
-        serializer = ArticleSerializer(article, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def update(self, request, pk=None):
+#         article = Article.objects.get(pk=pk)
+#         serializer = ArticleSerializer(article, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Generic View Sets
+class ArticleViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = ArticleSerializer
+    queryset = Article.objects.all()
 
 
 # Generiv View and mixins
