@@ -2,16 +2,30 @@ from django.db.models import manager
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import serializers
 
+# serializers intro
+from rest_framework import serializers
+from rest_framework import permissions
+from rest_framework import authentication
 from rest_framework.parsers import JSONParser
 from rest_framework.serializers import Serializer
+
+# Function based api views
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+
+# class based api views
 from rest_framework.views import APIView
+
+# Generic and mixins
 from rest_framework import generics
 from rest_framework import mixins
+
+# Authentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 
 from .models import Article
 from .serializers import ArticleSerializer
@@ -23,6 +37,10 @@ class GenericApiView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Crea
     queryset = Article.objects.all()
 
     lookup_field = "pk"
+
+    # authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk=None):
         id = pk
