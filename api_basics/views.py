@@ -67,12 +67,19 @@ from .serializers import ArticleSerializer
 
 
 # Generic View Sets
-class ArticleViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
+# class ArticleViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
+#     serializer_class = ArticleSerializer
+#     queryset = Article.objects.all()
+
+
+# model view set
+class ArticleViewSet(viewsets.ModelViewSet):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
 
-
 # Generiv View and mixins
+
+
 class GenericApiView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.RetrieveModelMixin):
     serializer_class = ArticleSerializer
     queryset = Article.objects.all()
